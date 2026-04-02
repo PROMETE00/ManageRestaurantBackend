@@ -1,48 +1,120 @@
-# 🍽️ Restaurant Management Backend
+# 🍽️ Restaurant Backend API
 
+API REST para gestión de restaurante con Spring Boot + MySQL + Cloudflare Tunnel
 
-## You can support me at
-https://coff.ee/prome
+## 🚀 Despliegue Rápido
 
-This is the backend of a restaurant management system made with **Spring Boot**.  
-It helps to manage:
+### 1️⃣ Clonar o hacer pull del proyecto
 
-- Tables and their status
-- Menus and products
-- Orders and reservations
-- Waiters and clients
+```bash
+git pull origin main
+```
 
-📌 Features
+### 2️⃣ Configurar variables de entorno
 
-Create, update and delete orders
+```bash
+# Copiar plantilla
+cp .env.example .env
 
-Assign waiters to tables
+# Editar y pegar tu token de Cloudflare
+nano .env
+```
 
-Manage product ingredients and types
+**Configurar en `.env`:**
+```env
+CLOUDFLARED_TOKEN_BACKEND=tu_token_aqui
+DB_PASSWORD=tu_contraseña_segura
+```
 
-Track order status
+### 3️⃣ Levantar servicios
 
-Make reservations
+```bash
+docker-compose up -d --build
+```
 
-## 🔧 Technologies
+### 4️⃣ Verificar estado
 
-- Java 17
-- Spring Boot
-- Spring Data JPA
-- MySQL (or any SQL database)
-- Maven
+```bash
+# Ver logs
+docker-compose logs -f
 
-## 📁 Project Structure
+# Verificar contenedores
+docker ps
 
-- `controller/` – Handles the REST API endpoints
-- `dto/` – Data Transfer Objects
-- `model/` – Entities and enums for the database
-- `repository/` – JPA interfaces to access data
+# Probar API localmente
+curl http://localhost:8081/api/health
+```
 
-## 🚀 How to Run
+## 🌐 Acceso Público
 
-1. Clone this repo
-2. Configure your database in `application.properties`
-3. Run the app with:
+- **Backend API:** https://restaurantebackend.prome.works
+- **Puerto local:** http://localhost:8081
 
-./mvnw spring-boot:run
+## 📦 Stack Tecnológico
+
+- **Java 21** + Spring Boot
+- **MySQL 8.0**
+- **Docker** + Docker Compose
+- **Cloudflare Tunnel** (Zero Trust)
+
+## 🛠️ Comandos Útiles
+
+```bash
+# Detener servicios
+docker-compose down
+
+# Ver logs de un servicio específico
+docker-compose logs -f backend
+docker-compose logs -f db
+
+# Reconstruir solo el backend
+docker-compose up -d --build backend
+
+# Limpiar volúmenes (¡CUIDADO! Borra la DB)
+docker-compose down -v
+```
+
+## 🔐 Seguridad
+
+- **NO** commitear el archivo `.env` (ya está en `.gitignore`)
+- Tokens de Cloudflare se gestionan vía variables de entorno
+- Contraseñas de DB solo en `.env`
+
+## 📚 Endpoints Principales
+
+```
+GET  /api/productos        - Listar productos
+GET  /api/mesas           - Listar mesas
+GET  /api/pedidos         - Listar pedidos
+POST /api/pedidos         - Crear pedido
+GET  /api/meseros         - Listar meseros
+```
+
+## 🐛 Troubleshooting
+
+**Problema:** Tunnel no conecta
+```bash
+# Ver logs del tunnel
+docker logs tunnel_backend
+
+# Verificar token
+echo $CLOUDFLARED_TOKEN_BACKEND
+```
+
+**Problema:** Base de datos no inicia
+```bash
+# Ver logs de MySQL
+docker-compose logs db
+
+# Verificar health check
+docker inspect restaurant_db | grep Health -A 10
+```
+
+**Problema:** Backend no puede conectar a DB
+```bash
+# Verificar red interna
+docker network inspect restaurante_backend_default
+
+# Esperar a que DB esté healthy
+docker-compose up -d
+```
