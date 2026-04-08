@@ -22,4 +22,15 @@ public class MenuMesa {
     @ManyToOne
     @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;
+
+    @Column(nullable = false)
+    private Integer cantidad = 1;
+
+    @PrePersist
+    @PreUpdate
+    void normalizeCantidad() {
+        if (cantidad == null || cantidad < 1) {
+            cantidad = 1;
+        }
+    }
 }

@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -6,15 +6,14 @@ services:
     container_name: restaurant_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD:-98127463}"
-      MYSQL_DATABASE: restauranteweb
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD:-change-me}"
+      MYSQL_DATABASE: restaurante
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./web2.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-98127463}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-change-me}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,19 +28,15 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DB_URL=jdbc:mysql://db:3306/restauranteweb?useSSL=false&serverTimezone=UTC
+      - DB_URL=jdbc:mysql://db:3306/restaurante?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - DB_USERNAME=root
-      - DB_PASSWORD=${DB_PASSWORD:-98127463}
+      - DB_PASSWORD=${DB_PASSWORD:-change-me}
+      - APP_ALLOWED_ORIGINS=${APP_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001}
+      - BOOTSTRAP_ADMIN_NAME=${BOOTSTRAP_ADMIN_NAME:-}
+      - BOOTSTRAP_ADMIN_EMAIL=${BOOTSTRAP_ADMIN_EMAIL:-}
+      - BOOTSTRAP_ADMIN_PASSWORD=${BOOTSTRAP_ADMIN_PASSWORD:-}
     ports:
       - "8081:8080"
-
-  cloudflared-api:
-    image: cloudflare/cloudflared:latest
-    container_name: tunnel_backend
-    restart: unless-stopped
-    command: tunnel run
-    environment:
-      - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN_BACKEND}
 
 volumes:
   db_data:

@@ -4,42 +4,56 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Table(name = "producto")
 public class Producto {
-
-    /* ---------- PK ---------- */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    /* ---------- Datos básicos ---------- */
     @Column(length = 100, nullable = false)
     private String nombre;
 
-    @Column(name = "ruta_foto", length = 255)          //  <<< NUEVO
-    private String rutaFoto;                           //  camelCase habitual en Java
+    @Column(name = "ruta_foto", length = 255)
+    private String rutaFoto;
 
-    /* ---------- Relaciones ---------- */
-    /** FK a tipo_producto.id */
     @ManyToOne
     @JoinColumn(name = "tipo_id")
     private TipoProducto tipo;
 
-    /** FK a categoria_producto.id */
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private CategoriaProducto categoria;
 
-    /* ---------- Datos numéricos ---------- */
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal precio;
 
-    /** Stock disponible (por defecto 0 en BD) */
     private Integer cantidad;
 
-    /** Calificación promedio 0-10 con dos decimales (ej. 8 .75) */
     @Column(precision = 3, scale = 2)
     private BigDecimal calificacion;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        if (cantidad == null) {
+            cantidad = 0;
+        }
+        createdAt = now;
+        updatedAt = now;
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
